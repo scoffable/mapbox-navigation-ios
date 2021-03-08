@@ -102,10 +102,12 @@ class ViewController: UIViewController {
         view.addSubview(navigationMapView)
         
         navigationMapView.delegate = self
+        navigationMapView.mapView.style.styleURL = .custom(url: URL(string: "mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y")!)
         navigationMapView.mapView.on(.styleLoadingFinished, handler: { [weak self] _ in
             guard let self = self else { return }
             self.addStyledFeature(self.trackStyledFeature)
             self.addStyledFeature(self.rawTrackStyledFeature)
+            self.addTerrain()
         })
         navigationMapView.mapView.update {
             $0.location.showUserLocation = true
@@ -114,7 +116,7 @@ class ViewController: UIViewController {
         // TODO: Provide a reliable way of setting camera to current coordinate.
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             if let coordinate = navigationMapView.mapView.locationManager.latestLocation?.coordinate {
-                navigationMapView.mapView.cameraManager.setCamera(to: CameraOptions(center: coordinate, zoom: 13),
+                navigationMapView.mapView.cameraManager.setCamera(to: CameraOptions(center: coordinate, zoom: 13, bearing: 80, pitch: 85),
                                                                   animated: true,
                                                                   completion: nil)
             }
@@ -122,6 +124,26 @@ class ViewController: UIViewController {
         
         setupGestureRecognizers()
         setupPerformActionBarButtonItem()
+    }
+    
+    func addTerrain() {
+        var demSource = RasterDemSource()
+        demSource.url = "mapbox://mapbox.mapbox-terrain-dem-v1"
+        demSource.tileSize = 512
+        demSource.maxzoom = 14.0
+        _ = navigationMapView.mapView.style.addSource(source: demSource, identifier: "mapbox-dem")
+
+        var terrain = Terrain(sourceId: "mapbox-dem")
+        terrain.exaggeration = .constant(1.5)
+
+        _ = navigationMapView.mapView.style.setTerrain(terrain)
+
+        var skyLayer = SkyLayer(id: "sky-layer")
+        skyLayer.paint?.skyType = .atmosphere
+        skyLayer.paint?.skyAtmosphereSun = .constant([0.0, 0.0])
+        skyLayer.paint?.skyAtmosphereSunIntensity = .constant(15.0)
+
+        _ = navigationMapView.mapView.style.addLayer(layer: skyLayer)
     }
     
     private func uninstall(_ navigationMapView: NavigationMapView) {
