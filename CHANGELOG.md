@@ -1,5 +1,9 @@
 # Changes to the Mapbox Navigation SDK for iOS
 
+## v1.4.0
+
+* Don't trigger `viewDidLoad()` during the initialization `NavigationViewController` ([#2786](https://github.com/mapbox/mapbox-navigation-ios/pull/2786))
+
 ## v1.3.0
 
 * MapboxCoreNavigation can now be installed using Swift Package Manager. ([#2771](https://github.com/mapbox/mapbox-navigation-ios/pull/2771))
