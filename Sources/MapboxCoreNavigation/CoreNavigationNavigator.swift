@@ -45,6 +45,8 @@ class Navigator {
         return RoadObjectsStore(try! navigator.roadObjectStore())
     }()
     
+    static var accessToken: String? = nil
+    
     /**
      Provides a new or an existing `MapboxCoreNavigation.Navigator` instance. Upon first initialization will trigger creation of `MapboxNavigationNative.Navigator` and `HistoryRecorderHandle` instances,
      satisfying provided configuration (`tilesVersion` and `tilesURL`).
@@ -68,7 +70,7 @@ class Navigator {
         let settingsProfile = SettingsProfile(application: ProfileApplication.kMobile,
                                               platform: ProfilePlatform.KIOS)
         
-        let endpointConfig = TileEndpointConfiguration(credentials: Directions.shared.credentials,
+        let endpointConfig = TileEndpointConfiguration(credentials: DirectionsCredentials(accessToken: Navigator.accessToken),
                                                        tilesVersion: Self.tilesVersion,
                                                        minimumDaysToPersistVersion: nil)
         
